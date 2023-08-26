@@ -120,9 +120,9 @@ class ArbitrageKeeper:
         self.skr = ERC20Token(web3=self.web3, address=self.tub.skr())
 
         self.zrx_exchange = ZrxExchange(web3=self.web3, address=Address(self.arguments.exchange_address)) \
-            if self.arguments.exchange_address is not None else None
+                if self.arguments.exchange_address is not None else None
         self.zrx_relayer_api = ZrxRelayerApi(exchange=self.zrx_exchange, api_server=self.arguments.relayer_api_server) \
-            if self.arguments.relayer_api_server is not None else None
+                if self.arguments.relayer_api_server is not None else None
 
         self.otc = MatchingMarket(web3=self.web3,
                                   address=Address(self.arguments.oasis_address),
@@ -138,7 +138,9 @@ class ArbitrageKeeper:
         if self.arguments.tx_manager:
             self.tx_manager = TxManager(web3=self.web3, address=Address(self.arguments.tx_manager))
             if self.tx_manager.owner() != self.our_address:
-                raise Exception(f"The TxManager has to be owned by the address the keeper is operating from.")
+                raise Exception(
+                    "The TxManager has to be owned by the address the keeper is operating from."
+                )
         else:
             self.tx_manager = None
 
@@ -229,8 +231,7 @@ class ArbitrageKeeper:
 
     def execute_best_opportunity_available(self):
         """Find the best arbitrage opportunity present and execute it."""
-        opportunity = self.best_opportunity(self.profitable_opportunities())
-        if opportunity:
+        if opportunity := self.best_opportunity(self.profitable_opportunities()):
             self.print_opportunity(opportunity)
             self.execute_opportunity(opportunity)
 
@@ -246,7 +247,7 @@ class ArbitrageKeeper:
 
     def best_opportunity(self, opportunities: List[Sequence]):
         """Pick the best opportunity, or return None if no profitable opportunities."""
-        return opportunities[0] if len(opportunities) > 0 else None
+        return opportunities[0] if opportunities else None
 
     def print_opportunity(self, opportunity: Sequence):
         """Print the details of the opportunity."""
@@ -292,8 +293,9 @@ class ArbitrageKeeper:
         """Execute the opportunity in one transaction, using the `tx_manager`."""
         tokens = [self.sai.address, self.skr.address, self.gem.address]
         invocations = list(map(lambda step: step.transact().invocation(), opportunity.steps))
-        receipt = self.tx_manager.execute(tokens, invocations).transact(gas_price=self.gas_price())
-        if receipt:
+        if receipt := self.tx_manager.execute(tokens, invocations).transact(
+            gas_price=self.gas_price()
+        ):
             self.logger.info(f"The profit we made is {TransferFormatter().format_net(receipt.transfers, self.our_address, self.token_name)}")
         else:
             self.errors += 1

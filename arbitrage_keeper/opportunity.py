@@ -79,15 +79,19 @@ class OpportunityFinder:
         graph_links = self._prepare_graph_links()
         graph = networkx.DiGraph(graph_links)
         try:
-            paths = list(networkx.shortest_simple_paths(graph, base_token.address, base_token.address + "-pre"))
+            paths = list(
+                networkx.shortest_simple_paths(
+                    graph, base_token.address, f"{base_token.address}-pre"
+                )
+            )
 
             opportunities = []
             for path in paths:
-                conversions = []
-                for i in range(0, len(path)-1):
-                    if 'conversion' in graph_links[path[i]][path[i+1]]:
-                        conversions.append(graph_links[path[i]][path[i+1]]['conversion'])
-
+                conversions = [
+                    graph_links[path[i]][path[i + 1]]['conversion']
+                    for i in range(0, len(path) - 1)
+                    if 'conversion' in graph_links[path[i]][path[i + 1]]
+                ]
                 sequence = Sequence(conversions=conversions)
                 sequence.set_amounts(max_engagement)
                 opportunities.append(sequence)
@@ -111,7 +115,7 @@ class OpportunityFinder:
         for conversion in self.conversions:
             src = conversion.source_token.address
             dst = conversion.target_token.address
-            add_empty_link(links, src + "-pre", src)
-            add_conversion_link(links, src, dst + "-via-" + conversion.method, conversion)
-            add_empty_link(links, dst + "-via-" + conversion.method, dst + "-pre")
+            add_empty_link(links, f"{src}-pre", src)
+            add_conversion_link(links, src, f"{dst}-via-{conversion.method}", conversion)
+            add_empty_link(links, f"{dst}-via-{conversion.method}", f"{dst}-pre")
         return links

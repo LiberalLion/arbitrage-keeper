@@ -449,7 +449,17 @@ class TestArbitrageKeeper:
         zrx_token = ERC20Token(web3=deployment.web3, address=deploy_contract(deployment.web3, 'ZRXToken'))
         token_transfer_proxy_address = deploy_contract(deployment.web3, 'TokenTransferProxy')
         exchange = ZrxExchange.deploy(deployment.web3, zrx_token.address, token_transfer_proxy_address)
-        deployment.web3.eth.contract(abi=json.loads(pkg_resources.resource_string('pymaker.deployment', f'abi/TokenTransferProxy.abi')))(address=token_transfer_proxy_address.address).transact().addAuthorizedAddress(exchange.address.address)
+        deployment.web3.eth.contract(
+            abi=json.loads(
+                pkg_resources.resource_string(
+                    'pymaker.deployment', 'abi/TokenTransferProxy.abi'
+                )
+            )
+        )(
+            address=token_transfer_proxy_address.address
+        ).transact().addAuthorizedAddress(
+            exchange.address.address
+        )
 
         # and
         keeper = ArbitrageKeeper(args=args(f"--eth-from {deployment.our_address.address}"

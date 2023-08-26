@@ -55,7 +55,7 @@ class TubJoinConversion(Conversion):
                          method="tub.join()")
 
     def id(self):
-        return f"tub.join()"
+        return "tub.join()"
 
     def name(self):
         return f"tub.join('{self.source_amount}')"
@@ -74,7 +74,7 @@ class TubExitConversion(Conversion):
                          method="tub.exit()")
 
     def id(self):
-        return f"tub.exit()"
+        return "tub.exit()"
 
     def name(self):
         return f"tub.exit('{self.source_amount}')"
@@ -103,7 +103,7 @@ class TubBoomConversion(Conversion):
         return Wad.max(Wad(self.boomable_amount_in_sai(tap) / (tap.bid(Wad.from_number(1)))) - Wad.from_number(0.000001), Wad.from_number(0))
 
     def id(self):
-        return f"tub.boom()"
+        return "tub.boom()"
 
     def name(self):
         return f"tub.boom('{self.source_amount}')"
@@ -135,7 +135,7 @@ class TubBustConversion(Conversion):
         return Wad.max(bustable_woe, bustable_fog, Wad.from_number(0))
 
     def id(self):
-        return f"tub.bust()"
+        return "tub.bust()"
 
     def name(self):
         return f"tub.bust('{self.target_amount}')"
@@ -171,9 +171,7 @@ class OasisTakeConversion(Conversion):
 
         # if by any chance rounding makes us want to buy more quantity than is available,
         # we just buy the whole lot
-        if quantity > self.order.pay_amount:
-            quantity = self.order.pay_amount
-
+        quantity = min(quantity, self.order.pay_amount)
         # if by any chance rounding makes us want to buy only slightly less than the available lot,
         # we buy everything as this is probably what we wanted in the first place
         if self.order.pay_amount - quantity < Wad.from_number(0.0000000001):
@@ -207,9 +205,7 @@ class ZrxFillOrderConversion(Conversion):
 
         # if by any chance rounding makes us want to sell more quantity than is possible,
         # we just buy the whole lot
-        if quantity > self.order.buy_amount:
-            quantity = self.order.buy_amount
-
+        quantity = min(quantity, self.order.buy_amount)
         # if by any chance rounding makes us want to buy only slightly less than the possible lot,
         # we buy everything as this is probably what we wanted in the first place
         if self.order.buy_amount - quantity < Wad.from_number(0.0000000001):
